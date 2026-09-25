@@ -1,12 +1,20 @@
 package com.bootcamp.bootcampbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Student {
@@ -18,6 +26,16 @@ public class Student {
     @NotBlank(message = "O nome é obrigatório")
     @Column
     private String name;
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "student_completed_activity",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "activity_id"))
+    private List<Activity> completedActivities = new ArrayList<>();
+
+    public double getXp() {
+        return completedActivities.stream().mapToDouble(Activity::xpCalculate).sum();
+    }
 
     public Long getId() {
         return id;
@@ -33,5 +51,13 @@ public class Student {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Activity> getCompletedActivities() {
+        return completedActivities;
+    }
+
+    public void setCompletedActivities(List<Activity> completedActivities) {
+        this.completedActivities = completedActivities;
     }
 }

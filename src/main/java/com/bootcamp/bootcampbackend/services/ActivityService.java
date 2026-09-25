@@ -1,8 +1,10 @@
 package com.bootcamp.bootcampbackend.services;
 
 import com.bootcamp.bootcampbackend.entities.Activity;
+import com.bootcamp.bootcampbackend.exceptions.ConflictException;
 import com.bootcamp.bootcampbackend.exceptions.NotFoundException;
 import com.bootcamp.bootcampbackend.repositories.ActivityRepository;
+import com.bootcamp.bootcampbackend.repositories.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,10 +12,13 @@ import java.util.List;
 @Service
 public class ActivityService {
     private final ActivityRepository activityRepository;
+    private final StudentRepository studentRepository;
     private final BootcampService bootcampService;
 
-    public ActivityService(ActivityRepository activityRepository, BootcampService bootcampService) {
+    public ActivityService(ActivityRepository activityRepository, StudentRepository studentRepository,
+                           BootcampService bootcampService) {
         this.activityRepository = activityRepository;
+        this.studentRepository = studentRepository;
         this.bootcampService = bootcampService;
     }
 
@@ -42,6 +47,10 @@ public class ActivityService {
     }
 
     public void deleteActivity(Long bootcampId, Long id) {
-        activityRepository.delete(getActivity(bootcampId, id));
+        Activity activity = getActivity(bootcampId, id);
+        if (studentRepository.existsByCompletedActivitiesId(id)) {
+            throw new ConflictException("A atividade " + id + " já foi concluída por alunos e não pode ser excluída");
+        }
+        activityRepository.delete(activity);
     }
 }

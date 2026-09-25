@@ -34,6 +34,7 @@ public class Activity {
     @ManyToOne
     private Bootcamp bootcamp;
 
+    @JsonProperty("xp")
     public double xpCalculate() {
         return DEFAULT_XP + 20d;
     }
