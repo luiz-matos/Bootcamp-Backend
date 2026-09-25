@@ -1,5 +1,11 @@
 package com.bootcamp.bootcampbackend.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,8 +31,7 @@ class EnrollmentTest {
         long ana = postStudent("Ana");
         postStudent("Bruno");
 
-        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana)).andExpect(status().isNoContent());
 
         mockMvc.perform(get("/bootcamps/{id}/students", java))
                 .andExpect(status().isOk())
@@ -46,8 +45,7 @@ class EnrollmentTest {
         long python = postBootcamp("Python");
         long ana = postStudent("Ana");
 
-        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana)).andExpect(status().isNoContent());
         mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", python, ana))
                 .andExpect(status().isNoContent());
 
@@ -63,7 +61,8 @@ class EnrollmentTest {
 
         mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("O aluno %d já está matriculado no bootcamp %d".formatted(ana, java)));
+                .andExpect(jsonPath("$.detail")
+                        .value("O aluno %d já está matriculado no bootcamp %d".formatted(ana, java)));
     }
 
     @Test
@@ -71,10 +70,8 @@ class EnrollmentTest {
         long java = postBootcamp("Java");
         long ana = postStudent("Ana");
 
-        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, 99))
-                .andExpect(status().isNotFound());
-        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", 99, ana))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, 99)).andExpect(status().isNotFound());
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", 99, ana)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -88,8 +85,7 @@ class EnrollmentTest {
 
         mockMvc.perform(get("/bootcamps/{id}/students", java))
                 .andExpect(jsonPath("$.length()").value(0));
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(status().isOk());
     }
 
     @Test
@@ -107,27 +103,32 @@ class EnrollmentTest {
         long ana = postStudent("Ana");
         mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana));
 
-        mockMvc.perform(delete("/bootcamps/{id}", java))
-                .andExpect(status().isConflict());
+        mockMvc.perform(delete("/bootcamps/{id}", java)).andExpect(status().isConflict());
     }
 
     private long postBootcamp(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        return idOf(mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "%s", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """.formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long postStudent(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON)
+        return idOf(mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"%s\"}".formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long idOf(String json) {
         return ((Number) JsonPath.read(json, "$.id")).longValue();
     }
-
 }

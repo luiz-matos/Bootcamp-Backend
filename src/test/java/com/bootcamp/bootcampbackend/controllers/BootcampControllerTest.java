@@ -1,10 +1,19 @@
 package com.bootcamp.bootcampbackend.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
 import com.jayway.jsonpath.JsonPath;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,16 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -84,13 +83,18 @@ class BootcampControllerTest {
                  "startDate": "2024-01-08", "endDate": "2024-03-01"}
                 """.formatted(java.getId()));
 
-        var names = bootcampRepository.findAll().stream().map(Bootcamp::getName).sorted().toList();
+        var names = bootcampRepository.findAll().stream()
+                .map(Bootcamp::getName)
+                .sorted()
+                .toList();
         assertEquals(List.of("Java", "Python"), names);
     }
 
     @Test
     void postReturnsTheCreatedBootcamp() throws Exception {
-        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """))
                 .andExpect(status().isCreated())
@@ -100,7 +104,9 @@ class BootcampControllerTest {
 
     @Test
     void postWithoutRequiredFieldsReturnsTheErrors() throws Exception {
-        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.name").value("O nome é obrigatório"))
                 .andExpect(jsonPath("$.errors.creditHours").value("A carga horária deve ser maior que zero"))
@@ -112,7 +118,9 @@ class BootcampControllerTest {
 
     @Test
     void postWithEndBeforeStartReturns400() throws Exception {
-        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java", "creditHours": 40, "startDate": "2024-03-01", "endDate": "2024-01-08"}
                         """))
                 .andExpect(status().isBadRequest())
@@ -124,7 +132,9 @@ class BootcampControllerTest {
     void postWithDuplicatedNameReturns409() throws Exception {
         postBootcamp("Java");
 
-        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java", "creditHours": 20, "startDate": "2024-05-01", "endDate": "2024-06-01"}
                         """))
                 .andExpect(status().isConflict())
@@ -153,7 +163,9 @@ class BootcampControllerTest {
     void putUpdatesTheBootcamp() throws Exception {
         long id = postBootcamp("Java");
 
-        mockMvc.perform(put("/bootcamps/{id}", id).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(put("/bootcamps/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java avançado", "creditHours": 60, "startDate": "2024-02-01", "endDate": "2024-04-01"}
                         """))
                 .andExpect(status().isOk())
@@ -161,14 +173,17 @@ class BootcampControllerTest {
                 .andExpect(jsonPath("$.name").value("Java avançado"))
                 .andExpect(jsonPath("$.creditHours").value(60));
 
-        assertEquals("Java avançado", bootcampRepository.findById(id).orElseThrow().getName());
+        assertEquals(
+                "Java avançado", bootcampRepository.findById(id).orElseThrow().getName());
     }
 
     @Test
     void putKeepingTheSameNameIsAllowed() throws Exception {
         long id = postBootcamp("Java");
 
-        mockMvc.perform(put("/bootcamps/{id}", id).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(put("/bootcamps/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java", "creditHours": 80, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """))
                 .andExpect(status().isOk());
@@ -179,7 +194,9 @@ class BootcampControllerTest {
         postBootcamp("Java");
         long id = postBootcamp("Python");
 
-        mockMvc.perform(put("/bootcamps/{id}", id).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(put("/bootcamps/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Java", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """))
                 .andExpect(status().isConflict());
@@ -189,7 +206,9 @@ class BootcampControllerTest {
     void putWithInvalidDataReturns400() throws Exception {
         long id = postBootcamp("Java");
 
-        mockMvc.perform(put("/bootcamps/{id}", id).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(put("/bootcamps/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -197,8 +216,7 @@ class BootcampControllerTest {
     void deleteRemovesTheBootcamp() throws Exception {
         long id = postBootcamp("Java");
 
-        mockMvc.perform(delete("/bootcamps/{id}", id))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/bootcamps/{id}", id)).andExpect(status().isNoContent());
 
         assertEquals(0, bootcampRepository.count());
     }
@@ -213,8 +231,7 @@ class BootcampControllerTest {
         bootcamp.setStudents(List.of(student));
         bootcampRepository.save(bootcamp);
 
-        mockMvc.perform(delete("/bootcamps/{id}", id))
-                .andExpect(status().isConflict());
+        mockMvc.perform(delete("/bootcamps/{id}", id)).andExpect(status().isConflict());
 
         assertEquals(1, bootcampRepository.count());
     }
@@ -227,10 +244,13 @@ class BootcampControllerTest {
     }
 
     private long postBootcampJson(String json) throws Exception {
-        String response = mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content(json))
+        String response = mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         return ((Number) JsonPath.read(response, "$.id")).longValue();
     }
-
 }

@@ -9,5 +9,4 @@ public class BootcampBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(BootcampBackendApplication.class, args);
     }
-
 }

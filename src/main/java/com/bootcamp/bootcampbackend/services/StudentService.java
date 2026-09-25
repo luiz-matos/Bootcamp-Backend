@@ -8,10 +8,9 @@ import com.bootcamp.bootcampbackend.exceptions.NotFoundException;
 import com.bootcamp.bootcampbackend.repositories.ActivityRepository;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class StudentService {
@@ -19,8 +18,10 @@ public class StudentService {
     private final BootcampRepository bootcampRepository;
     private final ActivityRepository activityRepository;
 
-    public StudentService(StudentRepository studentRepository, BootcampRepository bootcampRepository,
-                          ActivityRepository activityRepository) {
+    public StudentService(
+            StudentRepository studentRepository,
+            BootcampRepository bootcampRepository,
+            ActivityRepository activityRepository) {
         this.studentRepository = studentRepository;
         this.bootcampRepository = bootcampRepository;
         this.activityRepository = activityRepository;
@@ -31,7 +32,8 @@ public class StudentService {
     }
 
     public Student getStudent(Long id) {
-        return studentRepository.findById(id)
+        return studentRepository
+                .findById(id)
                 .orElseThrow(() -> new NotFoundException("Aluno " + id + " não encontrado"));
     }
 
@@ -65,7 +67,8 @@ public class StudentService {
     @Transactional
     public void completeActivity(Long id, Long activityId) {
         Student student = getStudent(id);
-        Activity activity = activityRepository.findById(activityId)
+        Activity activity = activityRepository
+                .findById(activityId)
                 .orElseThrow(() -> new NotFoundException("Atividade " + activityId + " não encontrada"));
         if (!activity.getBootcamp().getStudents().contains(student)) {
             throw new ConflictException(
@@ -81,5 +84,4 @@ public class StudentService {
             student.getCompletedBootcamps().add(bootcamp);
         }
     }
-
 }

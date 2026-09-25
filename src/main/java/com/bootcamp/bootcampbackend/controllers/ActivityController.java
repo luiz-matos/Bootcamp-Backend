@@ -3,6 +3,7 @@ package com.bootcamp.bootcampbackend.controllers;
 import com.bootcamp.bootcampbackend.entities.Activity;
 import com.bootcamp.bootcampbackend.services.ActivityService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("bootcamps/{bootcampId}/activities")
@@ -41,8 +40,8 @@ public class ActivityController {
     }
 
     @PutMapping("/{id}")
-    public Activity updateActivity(@PathVariable Long bootcampId, @PathVariable Long id,
-                                   @Valid @RequestBody Activity activity) {
+    public Activity updateActivity(
+            @PathVariable Long bootcampId, @PathVariable Long id, @Valid @RequestBody Activity activity) {
         return activityService.updateActivity(bootcampId, id, activity);
     }
 
@@ -51,5 +50,4 @@ public class ActivityController {
     public void deleteActivity(@PathVariable Long bootcampId, @PathVariable Long id) {
         activityService.deleteActivity(bootcampId, id);
     }
-
 }

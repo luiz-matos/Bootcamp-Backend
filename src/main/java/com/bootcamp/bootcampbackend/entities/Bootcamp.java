@@ -16,7 +16,6 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,26 +28,34 @@ public class Bootcamp {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank(message = "O nome é obrigatório")
     @Column(unique = true, nullable = false)
     private String name;
+
     @Lob
     private String description;
+
     @Positive(message = "A carga horária deve ser maior que zero")
     @Column(nullable = false)
     private int creditHours;
+
     @NotNull(message = "A data de início é obrigatória")
     @Column(nullable = false)
     private LocalDate startDate;
+
     @NotNull(message = "A data de término é obrigatória")
     @Column(nullable = false)
     private LocalDate endDate;
+
     @JsonIgnore
     @ManyToMany
-    @JoinTable(name = "bootcamp_student",
+    @JoinTable(
+            name = "bootcamp_student",
             joinColumns = @JoinColumn(name = "bootcamp_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id"))
     private List<Student> students;
+
     @JsonIgnore
     @OneToMany(mappedBy = "bootcamp")
     private List<Activity> activities;

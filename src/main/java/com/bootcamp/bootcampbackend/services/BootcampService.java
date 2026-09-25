@@ -5,11 +5,9 @@ import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.exceptions.ConflictException;
 import com.bootcamp.bootcampbackend.exceptions.NotFoundException;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class BootcampService {
@@ -27,7 +25,8 @@ public class BootcampService {
     }
 
     public Bootcamp getBootcamp(Long id) {
-        return bootcampRepository.findById(id)
+        return bootcampRepository
+                .findById(id)
                 .orElseThrow(() -> new NotFoundException("Bootcamp " + id + " não encontrado"));
     }
 

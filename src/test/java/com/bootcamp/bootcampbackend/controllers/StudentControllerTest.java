@@ -1,9 +1,19 @@
 package com.bootcamp.bootcampbackend.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
 import com.jayway.jsonpath.JsonPath;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,17 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -45,7 +44,9 @@ class StudentControllerTest {
 
     @Test
     void postCreatesTheStudent() throws Exception {
-        mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"id": 50, "name": "Ana"}
                         """))
                 .andExpect(status().isCreated())
@@ -57,7 +58,9 @@ class StudentControllerTest {
 
     @Test
     void postWithoutNameReturns400() throws Exception {
-        mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.name").value("O nome é obrigatório"));
     }
@@ -87,7 +90,9 @@ class StudentControllerTest {
     void putRenamesTheStudent() throws Exception {
         long id = postStudent("Ana");
 
-        mockMvc.perform(put("/students/{id}", id).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(put("/students/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Ana Souza"}
                         """))
                 .andExpect(status().isOk())
@@ -105,8 +110,7 @@ class StudentControllerTest {
         bootcamp.setStudents(List.of(studentRepository.findById(id).orElseThrow()));
         bootcampRepository.save(bootcamp);
 
-        mockMvc.perform(delete("/students/{id}", id))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/students/{id}", id)).andExpect(status().isNoContent());
 
         assertEquals(0, studentRepository.count());
         assertEquals(1, bootcampRepository.count());
@@ -114,11 +118,13 @@ class StudentControllerTest {
     }
 
     private long postStudent(String name) throws Exception {
-        String response = mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON)
+        String response = mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"%s\"}".formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         return ((Number) JsonPath.read(response, "$.id")).longValue();
     }
-
 }

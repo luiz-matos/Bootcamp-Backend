@@ -5,6 +5,7 @@ import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.services.StudentService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("students")
@@ -68,5 +67,4 @@ public class StudentController {
     public void completeActivity(@PathVariable Long id, @PathVariable Long activityId) {
         studentService.completeActivity(id, activityId);
     }
-
 }

@@ -1,5 +1,11 @@
 package com.bootcamp.bootcampbackend.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,12 +17,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,8 +38,7 @@ class ExperienceTest {
         spring = postActivity(java, "Mentoria de Spring");
         jpa = postActivity(java, "Mentoria de JPA");
         ana = postStudent("Ana");
-        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", java, ana)).andExpect(status().isNoContent());
     }
 
     @Test
@@ -50,8 +49,7 @@ class ExperienceTest {
 
     @Test
     void newStudentHasNoXp() throws Exception {
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(0.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(0.0));
     }
 
     @Test
@@ -65,8 +63,7 @@ class ExperienceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.xp").value(70.0));
 
-        mockMvc.perform(get("/students"))
-                .andExpect(jsonPath("$[0].xp").value(70.0));
+        mockMvc.perform(get("/students")).andExpect(jsonPath("$[0].xp").value(70.0));
 
         mockMvc.perform(get("/students/{id}/completed-activities", ana))
                 .andExpect(status().isOk())
@@ -75,12 +72,16 @@ class ExperienceTest {
 
     @Test
     void xpSentByClientIsIgnored() throws Exception {
-        String response = mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON).content("""
+        String response = mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Bruno", "xp": 999}
                         """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.xp").value(0.0))
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         mockMvc.perform(get("/students/{id}", idOf(response)))
                 .andExpect(jsonPath("$.xp").value(0.0));
@@ -88,23 +89,20 @@ class ExperienceTest {
 
     @Test
     void bootcampShowsItsXp() throws Exception {
-        mockMvc.perform(get("/bootcamps/{id}", java))
-                .andExpect(jsonPath("$.xp").value(600.0));
+        mockMvc.perform(get("/bootcamps/{id}", java)).andExpect(jsonPath("$.xp").value(600.0));
     }
 
     @Test
     void finishingAllActivitiesAddsTheBootcampXp() throws Exception {
         complete(ana, spring);
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(35.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(35.0));
         mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
                 .andExpect(jsonPath("$.length()").value(0));
 
         complete(ana, jpa);
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(670.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(670.0));
         mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
@@ -118,30 +116,31 @@ class ExperienceTest {
 
         long testes = postActivity(java, "Mentoria de testes");
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(670.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(670.0));
 
         complete(ana, testes);
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(705.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(705.0));
         mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
                 .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
     void bootcampXpFollowsTheCreditHours() throws Exception {
-        long python = idOf(mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        long python = idOf(mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "Python", "creditHours": 10, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """))
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
         long django = postActivity(python, "Mentoria de Django");
         mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", python, ana));
 
         complete(ana, django);
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(185.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(185.0));
     }
 
     @Test
@@ -152,8 +151,7 @@ class ExperienceTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.detail").value("O aluno %d já concluiu a atividade %d".formatted(ana, spring)));
 
-        mockMvc.perform(get("/students/{id}", ana))
-                .andExpect(jsonPath("$.xp").value(35.0));
+        mockMvc.perform(get("/students/{id}", ana)).andExpect(jsonPath("$.xp").value(35.0));
     }
 
     @Test
@@ -185,8 +183,7 @@ class ExperienceTest {
     void studentWithCompletedActivitiesCanBeDeleted() throws Exception {
         complete(ana, spring);
 
-        mockMvc.perform(delete("/students/{id}", ana))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/students/{id}", ana)).andExpect(status().isNoContent());
 
         mockMvc.perform(delete("/bootcamps/{id}/activities/{activityId}", java, spring))
                 .andExpect(status().isNoContent());
@@ -197,31 +194,40 @@ class ExperienceTest {
     }
 
     private long postBootcamp(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        return idOf(mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "%s", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """.formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long postActivity(long bootcampId, String title) throws Exception {
         return idOf(mockMvc.perform(post("/bootcamps/{id}/activities", bootcampId)
-                        .contentType(MediaType.APPLICATION_JSON).content("""
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                                 {"title": "%s", "dateOfMentoring": "2024-01-15"}
                                 """.formatted(title)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long postStudent(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON)
+        return idOf(mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"%s\"}".formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long idOf(String json) {
         return ((Number) JsonPath.read(json, "$.id")).longValue();
     }
-
 }

@@ -1,5 +1,12 @@
 package com.bootcamp.bootcampbackend.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,7 +30,9 @@ class ActivityControllerTest {
     void postCreatesTheActivityInTheBootcamp() throws Exception {
         long java = postBootcamp("Java");
 
-        mockMvc.perform(post("/bootcamps/{id}/activities", java).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/bootcamps/{id}/activities", java)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"title": "Mentoria de Spring", "description": "Tira-dúvidas", "dateOfMentoring": "2024-01-15"}
                         """))
                 .andExpect(status().isCreated())
@@ -44,7 +46,9 @@ class ActivityControllerTest {
     void postWithoutRequiredFieldsReturns400() throws Exception {
         long java = postBootcamp("Java");
 
-        mockMvc.perform(post("/bootcamps/{id}/activities", java).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/bootcamps/{id}/activities", java)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.title").value("O título é obrigatório"))
                 .andExpect(jsonPath("$.errors.dateOfMentoring").value("A data da mentoria é obrigatória"));
@@ -52,7 +56,9 @@ class ActivityControllerTest {
 
     @Test
     void postInUnknownBootcampReturns404() throws Exception {
-        mockMvc.perform(post("/bootcamps/{id}/activities", 99).contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/bootcamps/{id}/activities", 99)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"title": "Mentoria", "dateOfMentoring": "2024-01-15"}
                         """))
                 .andExpect(status().isNotFound());
@@ -70,8 +76,7 @@ class ActivityControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
 
-        mockMvc.perform(get("/bootcamps/{id}/activities", 99))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/bootcamps/{id}/activities", 99)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -96,7 +101,8 @@ class ActivityControllerTest {
         long activity = postActivity(java, "Mentoria de Spring");
 
         mockMvc.perform(put("/bootcamps/{id}/activities/{activityId}", java, activity)
-                        .contentType(MediaType.APPLICATION_JSON).content("""
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                                 {"title": "Mentoria de Spring Boot 4", "dateOfMentoring": "2024-01-22"}
                                 """))
                 .andExpect(status().isOk())
@@ -121,29 +127,34 @@ class ActivityControllerTest {
         long java = postBootcamp("Java");
         postActivity(java, "Mentoria de Spring");
 
-        mockMvc.perform(delete("/bootcamps/{id}", java))
-                .andExpect(status().isConflict());
+        mockMvc.perform(delete("/bootcamps/{id}", java)).andExpect(status().isConflict());
     }
 
     private long postBootcamp(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+        return idOf(mockMvc.perform(post("/bootcamps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                         {"name": "%s", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
                         """.formatted(name)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long postActivity(long bootcampId, String title) throws Exception {
         return idOf(mockMvc.perform(post("/bootcamps/{id}/activities", bootcampId)
-                        .contentType(MediaType.APPLICATION_JSON).content("""
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
                                 {"title": "%s", "dateOfMentoring": "2024-01-15"}
                                 """.formatted(title)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString());
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
     }
 
     private long idOf(String json) {
         return ((Number) JsonPath.read(json, "$.id")).longValue();
     }
-
 }

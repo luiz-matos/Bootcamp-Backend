@@ -5,9 +5,8 @@ import com.bootcamp.bootcampbackend.exceptions.ConflictException;
 import com.bootcamp.bootcampbackend.exceptions.NotFoundException;
 import com.bootcamp.bootcampbackend.repositories.ActivityRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityService {
@@ -15,8 +14,10 @@ public class ActivityService {
     private final StudentRepository studentRepository;
     private final BootcampService bootcampService;
 
-    public ActivityService(ActivityRepository activityRepository, StudentRepository studentRepository,
-                           BootcampService bootcampService) {
+    public ActivityService(
+            ActivityRepository activityRepository,
+            StudentRepository studentRepository,
+            BootcampService bootcampService) {
         this.activityRepository = activityRepository;
         this.studentRepository = studentRepository;
         this.bootcampService = bootcampService;
@@ -28,9 +29,10 @@ public class ActivityService {
     }
 
     public Activity getActivity(Long bootcampId, Long id) {
-        return activityRepository.findByIdAndBootcampId(id, bootcampId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Atividade " + id + " não encontrada no bootcamp " + bootcampId));
+        return activityRepository
+                .findByIdAndBootcampId(id, bootcampId)
+                .orElseThrow(
+                        () -> new NotFoundException("Atividade " + id + " não encontrada no bootcamp " + bootcampId));
     }
 
     public Activity addActivity(Long bootcampId, Activity activity) {
