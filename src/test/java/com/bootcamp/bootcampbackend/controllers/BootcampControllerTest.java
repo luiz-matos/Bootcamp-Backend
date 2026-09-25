@@ -11,7 +11,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -34,6 +36,23 @@ class BootcampControllerTest {
                 """);
 
         assertEquals(1, bootcampRepository.count());
+    }
+
+    @Test
+    void listReturnsOnlyBootcampData() throws Exception {
+        postBootcampJson("""
+                {"id": 1, "name": "Java", "description": "Trilha de back-end", "creditHours": 40,
+                 "startDate": "2024-01-08", "endDate": "2024-03-01"}
+                """);
+
+        mockMvc.perform(get("/bootcamp"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Java"))
+                .andExpect(jsonPath("$[0].creditHours").value(40))
+                .andExpect(jsonPath("$[0].startDate").value("2024-01-08"))
+                .andExpect(jsonPath("$[0].students").doesNotExist())
+                .andExpect(jsonPath("$[0].activities").doesNotExist());
     }
 
     private void postBootcampJson(String json) throws Exception {
