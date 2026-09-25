@@ -2,6 +2,7 @@ package com.bootcamp.bootcampbackend.services;
 
 import com.bootcamp.bootcampbackend.dtos.BootcampRequest;
 import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
+import com.bootcamp.bootcampbackend.dtos.ResponseMapper;
 import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
@@ -17,18 +18,23 @@ public class BootcampService {
 
     private final BootcampRepository bootcampRepository;
     private final StudentService studentService;
+    private final ResponseMapper responseMapper;
 
-    public BootcampService(BootcampRepository bootcampRepository, StudentService studentService) {
+    public BootcampService(
+            BootcampRepository bootcampRepository, StudentService studentService, ResponseMapper responseMapper) {
         this.bootcampRepository = bootcampRepository;
         this.studentService = studentService;
+        this.responseMapper = responseMapper;
     }
 
     public List<BootcampResponse> getBootcampList() {
-        return bootcampRepository.findAll().stream().map(BootcampResponse::from).toList();
+        return bootcampRepository.findAll().stream()
+                .map(responseMapper::toResponse)
+                .toList();
     }
 
     public BootcampResponse getBootcamp(Long id) {
-        return BootcampResponse.from(findBootcamp(id));
+        return responseMapper.toResponse(findBootcamp(id));
     }
 
     public Bootcamp findBootcamp(Long id) {
@@ -43,7 +49,7 @@ public class BootcampService {
         }
         Bootcamp bootcamp = new Bootcamp();
         request.applyTo(bootcamp);
-        return BootcampResponse.from(bootcampRepository.save(bootcamp));
+        return responseMapper.toResponse(bootcampRepository.save(bootcamp));
     }
 
     public BootcampResponse updateBootcamp(Long id, BootcampRequest request) {
@@ -52,7 +58,7 @@ public class BootcampService {
             throw new ConflictException("Já existe um bootcamp com o nome " + request.name());
         }
         request.applyTo(bootcamp);
-        return BootcampResponse.from(bootcampRepository.save(bootcamp));
+        return responseMapper.toResponse(bootcampRepository.save(bootcamp));
     }
 
     @Transactional
@@ -67,7 +73,7 @@ public class BootcampService {
     @Transactional(readOnly = true)
     public List<StudentResponse> getEnrolledStudents(Long id) {
         return findBootcamp(id).getStudents().stream()
-                .map(StudentResponse::from)
+                .map(responseMapper::toResponse)
                 .toList();
     }
 

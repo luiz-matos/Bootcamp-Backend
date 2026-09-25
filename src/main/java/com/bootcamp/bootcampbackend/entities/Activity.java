@@ -11,8 +11,6 @@ import java.time.LocalDate;
 @Entity
 public class Activity {
 
-    private static final double DEFAULT_XP = 15d;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,10 +26,6 @@ public class Activity {
 
     @ManyToOne
     private Bootcamp bootcamp;
-
-    public double xpCalculate() {
-        return DEFAULT_XP + 20d;
-    }
 
     public Long getId() {
         return id;

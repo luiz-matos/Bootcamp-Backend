@@ -2,6 +2,7 @@ package com.bootcamp.bootcampbackend.services;
 
 import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
 import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
+import com.bootcamp.bootcampbackend.dtos.ResponseMapper;
 import com.bootcamp.bootcampbackend.dtos.StudentRequest;
 import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.entities.Activity;
@@ -21,22 +22,27 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final BootcampRepository bootcampRepository;
     private final ActivityRepository activityRepository;
+    private final ResponseMapper responseMapper;
 
     public StudentService(
             StudentRepository studentRepository,
             BootcampRepository bootcampRepository,
-            ActivityRepository activityRepository) {
+            ActivityRepository activityRepository,
+            ResponseMapper responseMapper) {
         this.studentRepository = studentRepository;
         this.bootcampRepository = bootcampRepository;
         this.activityRepository = activityRepository;
+        this.responseMapper = responseMapper;
     }
 
     public List<StudentResponse> getStudentList() {
-        return studentRepository.findAll().stream().map(StudentResponse::from).toList();
+        return studentRepository.findAll().stream()
+                .map(responseMapper::toResponse)
+                .toList();
     }
 
     public StudentResponse getStudent(Long id) {
-        return StudentResponse.from(findStudent(id));
+        return responseMapper.toResponse(findStudent(id));
     }
 
     public Student findStudent(Long id) {
@@ -48,13 +54,13 @@ public class StudentService {
     public StudentResponse addStudent(StudentRequest request) {
         Student student = new Student();
         request.applyTo(student);
-        return StudentResponse.from(studentRepository.save(student));
+        return responseMapper.toResponse(studentRepository.save(student));
     }
 
     public StudentResponse updateStudent(Long id, StudentRequest request) {
         Student student = findStudent(id);
         request.applyTo(student);
-        return StudentResponse.from(studentRepository.save(student));
+        return responseMapper.toResponse(studentRepository.save(student));
     }
 
     @Transactional
@@ -68,13 +74,13 @@ public class StudentService {
 
     public List<ActivityResponse> getCompletedActivities(Long id) {
         return findStudent(id).getCompletedActivities().stream()
-                .map(ActivityResponse::from)
+                .map(responseMapper::toResponse)
                 .toList();
     }
 
     public List<BootcampResponse> getCompletedBootcamps(Long id) {
         return findStudent(id).getCompletedBootcamps().stream()
-                .map(BootcampResponse::from)
+                .map(responseMapper::toResponse)
                 .toList();
     }
 

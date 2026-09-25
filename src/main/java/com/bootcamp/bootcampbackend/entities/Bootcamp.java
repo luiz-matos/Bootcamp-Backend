@@ -15,8 +15,6 @@ import java.util.List;
 @Entity
 public class Bootcamp {
 
-    private static final double DEFAULT_XP = 15d;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,10 +43,6 @@ public class Bootcamp {
 
     @OneToMany(mappedBy = "bootcamp")
     private List<Activity> activities;
-
-    public double xpCalculate() {
-        return DEFAULT_XP * creditHours;
-    }
 
     public Long getId() {
         return id;

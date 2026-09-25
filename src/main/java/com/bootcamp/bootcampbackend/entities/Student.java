@@ -38,11 +38,6 @@ public class Student {
             inverseJoinColumns = @JoinColumn(name = "bootcamp_id"))
     private Set<Bootcamp> completedBootcamps = new HashSet<>();
 
-    public double getXp() {
-        return completedActivities.stream().mapToDouble(Activity::xpCalculate).sum()
-                + completedBootcamps.stream().mapToDouble(Bootcamp::xpCalculate).sum();
-    }
-
     public Long getId() {
         return id;
     }
