@@ -7,7 +7,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
 import java.time.LocalDate;
@@ -31,10 +34,13 @@ public class Bootcamp {
     @Column(nullable = false)
     private LocalDate endDate;
     @JsonIgnore
-    @OneToMany
+    @ManyToMany
+    @JoinTable(name = "bootcamp_student",
+            joinColumns = @JoinColumn(name = "bootcamp_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id"))
     private List<Student> students;
     @JsonIgnore
-    @OneToMany
+    @OneToMany(mappedBy = "bootcamp")
     private List<Activity> activities;
 
     public int getId() {

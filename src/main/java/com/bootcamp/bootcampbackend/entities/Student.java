@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Student {
@@ -15,8 +14,6 @@ public class Student {
     private int id;
     @Column
     private String name;
-    @ManyToOne
-    private Bootcamp bootcamp;
 
     public int getId() {
         return id;
@@ -32,13 +29,5 @@ public class Student {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Bootcamp getBootcamp() {
-        return bootcamp;
-    }
-
-    public void setBootcamp(Bootcamp bootcamp) {
-        this.bootcamp = bootcamp;
     }
 }
