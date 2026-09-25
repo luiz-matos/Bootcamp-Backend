@@ -1,7 +1,8 @@
 package com.bootcamp.bootcampbackend.controllers;
 
-import com.bootcamp.bootcampbackend.entities.Bootcamp;
-import com.bootcamp.bootcampbackend.entities.Student;
+import com.bootcamp.bootcampbackend.dtos.BootcampRequest;
+import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
+import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.services.BootcampService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -27,24 +28,24 @@ public class BootcampController {
     }
 
     @GetMapping
-    public List<Bootcamp> getBootcampList() {
+    public List<BootcampResponse> getBootcampList() {
         return bootcampService.getBootcampList();
     }
 
     @GetMapping("/{id}")
-    public Bootcamp getBootcamp(@PathVariable Long id) {
+    public BootcampResponse getBootcamp(@PathVariable Long id) {
         return bootcampService.getBootcamp(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Bootcamp addBootcamp(@Valid @RequestBody Bootcamp bootcamp) {
-        return bootcampService.addBootcamp(bootcamp);
+    public BootcampResponse addBootcamp(@Valid @RequestBody BootcampRequest request) {
+        return bootcampService.addBootcamp(request);
     }
 
     @PutMapping("/{id}")
-    public Bootcamp updateBootcamp(@PathVariable Long id, @Valid @RequestBody Bootcamp bootcamp) {
-        return bootcampService.updateBootcamp(id, bootcamp);
+    public BootcampResponse updateBootcamp(@PathVariable Long id, @Valid @RequestBody BootcampRequest request) {
+        return bootcampService.updateBootcamp(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -54,7 +55,7 @@ public class BootcampController {
     }
 
     @GetMapping("/{id}/students")
-    public List<Student> getEnrolledStudents(@PathVariable Long id) {
+    public List<StudentResponse> getEnrolledStudents(@PathVariable Long id) {
         return bootcampService.getEnrolledStudents(id);
     }
 

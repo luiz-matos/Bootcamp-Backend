@@ -1,8 +1,9 @@
 package com.bootcamp.bootcampbackend.controllers;
 
-import com.bootcamp.bootcampbackend.entities.Activity;
-import com.bootcamp.bootcampbackend.entities.Bootcamp;
-import com.bootcamp.bootcampbackend.entities.Student;
+import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
+import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
+import com.bootcamp.bootcampbackend.dtos.StudentRequest;
+import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.services.StudentService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,24 +29,24 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<Student> getStudentList() {
+    public List<StudentResponse> getStudentList() {
         return studentService.getStudentList();
     }
 
     @GetMapping("/{id}")
-    public Student getStudent(@PathVariable Long id) {
+    public StudentResponse getStudent(@PathVariable Long id) {
         return studentService.getStudent(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Student addStudent(@Valid @RequestBody Student student) {
-        return studentService.addStudent(student);
+    public StudentResponse addStudent(@Valid @RequestBody StudentRequest request) {
+        return studentService.addStudent(request);
     }
 
     @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable Long id, @Valid @RequestBody Student student) {
-        return studentService.updateStudent(id, student);
+    public StudentResponse updateStudent(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
+        return studentService.updateStudent(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -55,12 +56,12 @@ public class StudentController {
     }
 
     @GetMapping("/{id}/completed-activities")
-    public List<Activity> getCompletedActivities(@PathVariable Long id) {
+    public List<ActivityResponse> getCompletedActivities(@PathVariable Long id) {
         return studentService.getCompletedActivities(id);
     }
 
     @GetMapping("/{id}/completed-bootcamps")
-    public List<Bootcamp> getCompletedBootcamps(@PathVariable Long id) {
+    public List<BootcampResponse> getCompletedBootcamps(@PathVariable Long id) {
         return studentService.getCompletedBootcamps(id);
     }
 

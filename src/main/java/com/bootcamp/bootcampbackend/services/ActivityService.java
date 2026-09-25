@@ -1,5 +1,7 @@
 package com.bootcamp.bootcampbackend.services;
 
+import com.bootcamp.bootcampbackend.dtos.ActivityRequest;
+import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
 import com.bootcamp.bootcampbackend.entities.Activity;
 import com.bootcamp.bootcampbackend.exceptions.ConflictException;
 import com.bootcamp.bootcampbackend.exceptions.NotFoundException;
@@ -23,33 +25,39 @@ public class ActivityService {
         this.bootcampService = bootcampService;
     }
 
-    public List<Activity> getActivityList(Long bootcampId) {
-        bootcampService.getBootcamp(bootcampId);
-        return activityRepository.findByBootcampId(bootcampId);
+    public List<ActivityResponse> getActivityList(Long bootcampId) {
+        bootcampService.findBootcamp(bootcampId);
+        return activityRepository.findByBootcampId(bootcampId).stream()
+                .map(ActivityResponse::from)
+                .toList();
     }
 
-    public Activity getActivity(Long bootcampId, Long id) {
+    public ActivityResponse getActivity(Long bootcampId, Long id) {
+        return ActivityResponse.from(findActivity(bootcampId, id));
+    }
+
+    private Activity findActivity(Long bootcampId, Long id) {
         return activityRepository
                 .findByIdAndBootcampId(id, bootcampId)
                 .orElseThrow(
                         () -> new NotFoundException("Atividade " + id + " não encontrada no bootcamp " + bootcampId));
     }
 
-    public Activity addActivity(Long bootcampId, Activity activity) {
-        activity.setBootcamp(bootcampService.getBootcamp(bootcampId));
-        return activityRepository.save(activity);
+    public ActivityResponse addActivity(Long bootcampId, ActivityRequest request) {
+        Activity activity = new Activity();
+        request.applyTo(activity);
+        activity.setBootcamp(bootcampService.findBootcamp(bootcampId));
+        return ActivityResponse.from(activityRepository.save(activity));
     }
 
-    public Activity updateActivity(Long bootcampId, Long id, Activity data) {
-        Activity activity = getActivity(bootcampId, id);
-        activity.setTitle(data.getTitle());
-        activity.setDescription(data.getDescription());
-        activity.setDateOfMentoring(data.getDateOfMentoring());
-        return activityRepository.save(activity);
+    public ActivityResponse updateActivity(Long bootcampId, Long id, ActivityRequest request) {
+        Activity activity = findActivity(bootcampId, id);
+        request.applyTo(activity);
+        return ActivityResponse.from(activityRepository.save(activity));
     }
 
     public void deleteActivity(Long bootcampId, Long id) {
-        Activity activity = getActivity(bootcampId, id);
+        Activity activity = findActivity(bootcampId, id);
         if (studentRepository.existsByCompletedActivitiesId(id)) {
             throw new ConflictException("A atividade " + id + " já foi concluída por alunos e não pode ser excluída");
         }

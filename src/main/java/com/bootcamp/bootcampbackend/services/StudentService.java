@@ -1,5 +1,9 @@
 package com.bootcamp.bootcampbackend.services;
 
+import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
+import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
+import com.bootcamp.bootcampbackend.dtos.StudentRequest;
+import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.entities.Activity;
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
@@ -27,46 +31,56 @@ public class StudentService {
         this.activityRepository = activityRepository;
     }
 
-    public List<Student> getStudentList() {
-        return studentRepository.findAll();
+    public List<StudentResponse> getStudentList() {
+        return studentRepository.findAll().stream().map(StudentResponse::from).toList();
     }
 
-    public Student getStudent(Long id) {
+    public StudentResponse getStudent(Long id) {
+        return StudentResponse.from(findStudent(id));
+    }
+
+    public Student findStudent(Long id) {
         return studentRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("Aluno " + id + " não encontrado"));
     }
 
-    public Student addStudent(Student student) {
-        return studentRepository.save(student);
+    public StudentResponse addStudent(StudentRequest request) {
+        Student student = new Student();
+        request.applyTo(student);
+        return StudentResponse.from(studentRepository.save(student));
     }
 
-    public Student updateStudent(Long id, Student data) {
-        Student student = getStudent(id);
-        student.setName(data.getName());
-        return studentRepository.save(student);
+    public StudentResponse updateStudent(Long id, StudentRequest request) {
+        Student student = findStudent(id);
+        request.applyTo(student);
+        return StudentResponse.from(studentRepository.save(student));
     }
 
     @Transactional
     public void deleteStudent(Long id) {
-        Student student = getStudent(id);
+        Student student = findStudent(id);
         for (Bootcamp bootcamp : bootcampRepository.findByStudentsId(id)) {
             bootcamp.getStudents().remove(student);
         }
         studentRepository.delete(student);
     }
 
-    public List<Activity> getCompletedActivities(Long id) {
-        return getStudent(id).getCompletedActivities();
+    public List<ActivityResponse> getCompletedActivities(Long id) {
+        return findStudent(id).getCompletedActivities().stream()
+                .map(ActivityResponse::from)
+                .toList();
     }
 
-    public List<Bootcamp> getCompletedBootcamps(Long id) {
-        return List.copyOf(getStudent(id).getCompletedBootcamps());
+    public List<BootcampResponse> getCompletedBootcamps(Long id) {
+        return findStudent(id).getCompletedBootcamps().stream()
+                .map(BootcampResponse::from)
+                .toList();
     }
 
     @Transactional
     public void completeActivity(Long id, Long activityId) {
-        Student student = getStudent(id);
+        Student student = findStudent(id);
         Activity activity = activityRepository
                 .findById(activityId)
                 .orElseThrow(() -> new NotFoundException("Atividade " + activityId + " não encontrada"));

@@ -1,6 +1,7 @@
 package com.bootcamp.bootcampbackend.controllers;
 
-import com.bootcamp.bootcampbackend.entities.Activity;
+import com.bootcamp.bootcampbackend.dtos.ActivityRequest;
+import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
 import com.bootcamp.bootcampbackend.services.ActivityService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -26,25 +27,25 @@ public class ActivityController {
     }
 
     @GetMapping
-    public List<Activity> getActivityList(@PathVariable Long bootcampId) {
+    public List<ActivityResponse> getActivityList(@PathVariable Long bootcampId) {
         return activityService.getActivityList(bootcampId);
     }
 
     @GetMapping("/{id}")
-    public Activity getActivity(@PathVariable Long bootcampId, @PathVariable Long id) {
+    public ActivityResponse getActivity(@PathVariable Long bootcampId, @PathVariable Long id) {
         return activityService.getActivity(bootcampId, id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Activity addActivity(@PathVariable Long bootcampId, @Valid @RequestBody Activity activity) {
-        return activityService.addActivity(bootcampId, activity);
+    public ActivityResponse addActivity(@PathVariable Long bootcampId, @Valid @RequestBody ActivityRequest request) {
+        return activityService.addActivity(bootcampId, request);
     }
 
     @PutMapping("/{id}")
-    public Activity updateActivity(
-            @PathVariable Long bootcampId, @PathVariable Long id, @Valid @RequestBody Activity activity) {
-        return activityService.updateActivity(bootcampId, id, activity);
+    public ActivityResponse updateActivity(
+            @PathVariable Long bootcampId, @PathVariable Long id, @Valid @RequestBody ActivityRequest request) {
+        return activityService.updateActivity(bootcampId, id, request);
     }
 
     @DeleteMapping("/{id}")
