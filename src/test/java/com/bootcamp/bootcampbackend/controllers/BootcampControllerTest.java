@@ -48,7 +48,7 @@ class BootcampControllerTest {
                  "startDate": "2024-01-08", "endDate": "2024-03-01"}
                 """);
 
-        mockMvc.perform(get("/bootcamp"))
+        mockMvc.perform(get("/bootcamps"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Java"))
@@ -88,7 +88,7 @@ class BootcampControllerTest {
     }
 
     private void postBootcampJson(String json) throws Exception {
-        mockMvc.perform(post("/bootcamp").contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated());
     }
 
