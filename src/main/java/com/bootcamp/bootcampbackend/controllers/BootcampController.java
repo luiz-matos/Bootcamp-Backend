@@ -2,6 +2,7 @@ package com.bootcamp.bootcampbackend.controllers;
 
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.services.BootcampService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +28,8 @@ public class BootcampController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addBootcamp(@RequestBody Bootcamp bootcamp) {
-        bootcampService.addBootcamp(bootcamp);
+    public Bootcamp addBootcamp(@Valid @RequestBody Bootcamp bootcamp) {
+        return bootcampService.addBootcamp(bootcamp);
     }
 
 }

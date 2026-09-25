@@ -80,6 +80,51 @@ class BootcampControllerTest {
         assertEquals(List.of("Java", "Python"), names);
     }
 
+    @Test
+    void postReturnsTheCreatedBootcamp() throws Exception {
+        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"name": "Java", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
+                        """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value("Java"));
+    }
+
+    @Test
+    void postWithoutRequiredFieldsReturnsTheErrors() throws Exception {
+        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.name").value("O nome é obrigatório"))
+                .andExpect(jsonPath("$.errors.creditHours").value("A carga horária deve ser maior que zero"))
+                .andExpect(jsonPath("$.errors.startDate").value("A data de início é obrigatória"))
+                .andExpect(jsonPath("$.errors.endDate").value("A data de término é obrigatória"));
+
+        assertEquals(0, bootcampRepository.count());
+    }
+
+    @Test
+    void postWithEndBeforeStartReturns400() throws Exception {
+        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"name": "Java", "creditHours": 40, "startDate": "2024-03-01", "endDate": "2024-01-08"}
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.endDateAfterStartDate")
+                        .value("A data de término não pode ser anterior à de início"));
+    }
+
+    @Test
+    void postWithDuplicatedNameReturns409() throws Exception {
+        postBootcamp("Java");
+
+        mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"name": "Java", "creditHours": 20, "startDate": "2024-05-01", "endDate": "2024-06-01"}
+                        """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("Já existe um bootcamp com o nome Java"));
+
+        assertEquals(1, bootcampRepository.count());
+    }
+
     private void postBootcamp(String name) throws Exception {
         postBootcampJson("""
                 {"name": "%s", "description": "Trilha de back-end", "creditHours": 40,
