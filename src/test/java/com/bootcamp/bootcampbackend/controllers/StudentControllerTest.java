@@ -11,27 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
-import com.jayway.jsonpath.JsonPath;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class StudentControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class StudentControllerTest extends ApiTest {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -115,16 +102,5 @@ class StudentControllerTest {
         assertEquals(0, studentRepository.count());
         assertEquals(1, bootcampRepository.count());
         assertEquals(0, jdbcTemplate.queryForObject("select count(*) from bootcamp_student", Integer.class));
-    }
-
-    private long postStudent(String name) throws Exception {
-        String response = mockMvc.perform(post("/students")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"%s\"}".formatted(name)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        return ((Number) JsonPath.read(response, "$.id")).longValue();
     }
 }

@@ -7,24 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ActivityControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class ActivityControllerTest extends ApiTest {
 
     @Test
     void postCreatesTheActivityInTheBootcamp() throws Exception {
@@ -128,33 +114,5 @@ class ActivityControllerTest {
         postActivity(java, "Mentoria de Spring");
 
         mockMvc.perform(delete("/bootcamps/{id}", java)).andExpect(status().isConflict());
-    }
-
-    private long postBootcamp(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name": "%s", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
-                        """.formatted(name)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    }
-
-    private long postActivity(long bootcampId, String title) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps/{id}/activities", bootcampId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"title": "%s", "dateOfMentoring": "2024-01-15"}
-                                """.formatted(title)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    }
-
-    private long idOf(String json) {
-        return ((Number) JsonPath.read(json, "$.id")).longValue();
     }
 }

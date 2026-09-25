@@ -12,25 +12,12 @@ import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.repositories.BootcampRepository;
 import com.bootcamp.bootcampbackend.repositories.StudentRepository;
-import com.jayway.jsonpath.JsonPath;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class BootcampControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class BootcampControllerTest extends ApiTest {
 
     @Autowired
     private BootcampRepository bootcampRepository;
@@ -234,23 +221,5 @@ class BootcampControllerTest {
         mockMvc.perform(delete("/bootcamps/{id}", id)).andExpect(status().isConflict());
 
         assertEquals(1, bootcampRepository.count());
-    }
-
-    private long postBootcamp(String name) throws Exception {
-        return postBootcampJson("""
-                {"name": "%s", "description": "Trilha de back-end", "creditHours": 40,
-                 "startDate": "2024-01-08", "endDate": "2024-03-01"}
-                """.formatted(name));
-    }
-
-    private long postBootcampJson(String json) throws Exception {
-        String response = mockMvc.perform(post("/bootcamps")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        return ((Number) JsonPath.read(response, "$.id")).longValue();
     }
 }

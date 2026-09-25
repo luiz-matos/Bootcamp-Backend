@@ -6,26 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ExperienceTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class ExperienceTest extends ApiTest {
 
     private long java;
     private long spring;
@@ -191,43 +177,5 @@ class ExperienceTest {
 
     private ResultActions complete(long student, long activity) throws Exception {
         return mockMvc.perform(post("/students/{id}/completed-activities/{activityId}", student, activity));
-    }
-
-    private long postBootcamp(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name": "%s", "creditHours": 40, "startDate": "2024-01-08", "endDate": "2024-03-01"}
-                        """.formatted(name)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    }
-
-    private long postActivity(long bootcampId, String title) throws Exception {
-        return idOf(mockMvc.perform(post("/bootcamps/{id}/activities", bootcampId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"title": "%s", "dateOfMentoring": "2024-01-15"}
-                                """.formatted(title)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    }
-
-    private long postStudent(String name) throws Exception {
-        return idOf(mockMvc.perform(post("/students")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"%s\"}".formatted(name)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString());
-    }
-
-    private long idOf(String json) {
-        return ((Number) JsonPath.read(json, "$.id")).longValue();
     }
 }
