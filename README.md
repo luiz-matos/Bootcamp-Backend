@@ -32,7 +32,7 @@ A conexão com o banco vem de variáveis de ambiente, com padrão para rodar loc
 
 A documentação fica no Swagger, em `http://localhost:8080/swagger-ui.html`, e o JSON do OpenAPI em `/v3/api-docs`.
 
-Os testes rodam com `./mvnw test` e não precisam do PostgreSQL: usam um H2 em memória.
+Os testes rodam com `./mvnw test` e não precisam do PostgreSQL: usam um H2 em memória. O `./mvnw verify` também confere a formatação do código, e o `./mvnw spotless:apply` corrige.
 
 ## Endpoints
 
@@ -101,19 +101,22 @@ Cadastro com dados inválidos:
 
 ```
 src/main/java/com/bootcamp/bootcampbackend/
-├── controllers/     # BootcampController, StudentController e ActivityController, só recebem e repassam
-├── services/        # BootcampService, StudentService e ActivityService, com as regras
+├── controllers/     # um controller por recurso, só recebem e repassam
+├── services/        # cadastro (Bootcamp, Student, Activity) e casos de uso (Enrollment, Completion)
+├── rules/           # ExperiencePolicy, a regra de XP
+├── dtos/            # records de entrada e saída e o ResponseMapper
 ├── repositories/    # Spring Data JPA
-├── entities/        # Bootcamp, Student e Activity, com as validações dos campos
+├── entities/        # Bootcamp, Student e Activity, só com o mapeamento do banco
 └── exceptions/      # NotFoundException, ConflictException e ApiExceptionHandler
 src/test/java/com/bootcamp/bootcampbackend/
-├── controllers/     # testes da API com MockMvc, um arquivo por recurso
+├── controllers/     # testes da API com MockMvc, um por controller, sobre a base ApiTest
+├── rules/           # teste unitário da ExperiencePolicy
 └── *Test.java       # subida da aplicação, tabelas do banco e Swagger
 ```
 
-- **Regras nos services.** Nome repetido, matrícula, conclusão de atividade e bloqueio de exclusão ficam nos services, que lançam `NotFoundException` ou `ConflictException`.
+- **Regras nos services.** Nome repetido e bloqueio de exclusão ficam nos services de cadastro; matrícula no `EnrollmentService`; conclusão e bônus de bootcamp no `CompletionService`. Todos lançam `NotFoundException` ou `ConflictException`.
 - **Erros centralizados.** O `ApiExceptionHandler` transforma essas exceções em 404 e 409, e a validação dos campos em 400 com a lista de `errors`.
-- **XP calculado, não guardado.** `Student.getXp` soma o `xpCalculate` das atividades concluídas e dos bootcamps finalizados. Não existe coluna de XP para manter sincronizada.
+- **XP calculado, não guardado.** A `ExperiencePolicy` diz quanto vale cada atividade e cada bootcamp e soma o XP do aluno. O `ResponseMapper` usa a policy ao montar as respostas. Não existe coluna de XP para manter sincronizada.
 - **Banco gerado pelo JPA.** Como na versão de 2024, o Hibernate cria e atualiza as tabelas a partir das entidades (`ddl-auto=update`).
 
 <p align="center">
@@ -148,7 +151,7 @@ O XP do aluno vem do que ele concluiu, não do que existe no bootcamp:
 - Finalizar o bootcamp vale 15 x a carga horária, o mesmo XP padrão da atividade. Assim, um bootcamp maior vale mais, e finalizar vale bem mais que uma atividade solta.
 - A finalização fica gravada no momento da última atividade. Se o bootcamp ganhar uma atividade nova depois, quem já finalizou não perde o bônus.
 - Cancelar a matrícula não apaga as conclusões nem o XP já ganho.
-- As atividades e os bootcamps concluídos são carregados junto com o aluno para o XP sair na mesma resposta. O custo é uma consulta extra por aluno na listagem.
+- As atividades e os bootcamps concluídos só são lidos quando o XP é pedido, e em lote: listar 20 alunos com XP custa 3 consultas.
 
 **Exclusão bloqueada em vez de cascata**
 
@@ -169,3 +172,16 @@ A senha do banco estava fixa no `application.properties`. Agora URL, usuário e 
 **Spring Boot 4.1**
 
 A versão de 2024 usava o Spring Boot 3.3, sem suporte desde 2025. Na atualização, o `spring-boot-starter-web` virou `spring-boot-starter-webmvc`, o nome novo no Boot 4.
+
+**Organização do código**
+
+Depois dos recursos, reorganizei o código sem mudar o que a API faz:
+
+- **DTOs no lugar das entidades na API.** Records de entrada (`BootcampRequest`, `StudentRequest`, `ActivityRequest`) carregam a validação, e os de saída definem o JSON. As entidades ficaram só com o mapeamento do banco, sem anotação de JSON.
+- **Um service por caso de uso.** Matrícula e conclusão saíram para `EnrollmentService` e `CompletionService`, com controllers próprios. Antes, o `BootcampService` dependia do `StudentService`, e os services usavam os repositórios uns dos outros.
+- **Regra de XP num lugar só.** A `ExperiencePolicy` tem os valores com nome (`ACTIVITY_XP = 35`, `XP_PER_CREDIT_HOUR = 15`). Antes, o 15 aparecia repetido em duas entidades, e o 35 era um `15 + 20` solto. Considerei uma Strategy, com uma classe por tipo de XP, mas para duas regras de uma linha seria estrutura antes da hora.
+- **Conclusões carregadas sob demanda e em lote.** Com `EAGER`, listar 20 alunos fazia 41 consultas. Com `LAZY` e `default_batch_fetch_size`, faz 3.
+- **Injeção pelo construtor** em todos os controllers, como os services já faziam.
+- **Descrição do bootcamp como `text`.** O `@Lob` vira uma coluna `oid` no PostgreSQL, que só pode ser lida dentro de transação.
+- **Formatação automática.** Spotless com palantir-java-format, verificado no `mvn verify`.
+- **Mesmo resultado.** Gravei as respostas de 71 chamadas, cobrindo todas as rotas e os casos de erro, antes da primeira mudança, e comparei depois de cada commit. O conteúdo ficou idêntico. A única diferença é a ordem dos campos no JSON, que agora segue a declaração do record, com o `id` primeiro.
