@@ -1,0 +1,8 @@
+# Texto sempre com LF, no repositório e no disco, em qualquer sistema.
+# Sem isto, o Git no Windows avisa em todo commit que vai converter para CRLF.
+* text=auto eol=lf
+
+# O cmd.exe espera CRLF nos scripts .cmd.
+*.cmd text eol=crlf
+
+*.png binary
