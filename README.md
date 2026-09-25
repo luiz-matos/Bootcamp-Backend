@@ -116,47 +116,9 @@ src/test/java/com/bootcamp/bootcampbackend/
 - **XP calculado, não guardado.** `Student.getXp` soma o `xpCalculate` das atividades concluídas e dos bootcamps finalizados. Não existe coluna de XP para manter sincronizada.
 - **Banco gerado pelo JPA.** Como na versão de 2024, o Hibernate cria e atualiza as tabelas a partir das entidades (`ddl-auto=update`).
 
-```mermaid
-erDiagram
-    BOOTCAMP ||--o{ ACTIVITY : tem
-    BOOTCAMP ||--o{ BOOTCAMP_STUDENT : matricula
-    STUDENT ||--o{ BOOTCAMP_STUDENT : "está em"
-    STUDENT ||--o{ STUDENT_COMPLETED_ACTIVITY : conclui
-    ACTIVITY ||--o{ STUDENT_COMPLETED_ACTIVITY : "concluída por"
-    STUDENT ||--o{ STUDENT_COMPLETED_BOOTCAMP : finaliza
-    BOOTCAMP ||--o{ STUDENT_COMPLETED_BOOTCAMP : "finalizado por"
-    BOOTCAMP {
-        bigint id PK
-        varchar name "único"
-        lob description
-        int credit_hours
-        date start_date
-        date end_date
-    }
-    STUDENT {
-        bigint id PK
-        varchar name
-    }
-    ACTIVITY {
-        bigint id PK
-        varchar title
-        varchar description
-        date date_of_mentoring
-        bigint bootcamp_id FK
-    }
-    BOOTCAMP_STUDENT {
-        bigint bootcamp_id FK
-        bigint student_id FK
-    }
-    STUDENT_COMPLETED_ACTIVITY {
-        bigint student_id FK
-        bigint activity_id FK
-    }
-    STUDENT_COMPLETED_BOOTCAMP {
-        bigint student_id FK
-        bigint bootcamp_id FK
-    }
-```
+<p align="center">
+  <img alt="Diagrama do banco: bootcamp, student e activity, com as tabelas de matrícula e de conclusão" src="docs/banco-de-dados.png" width="1120" />
+</p>
 
 ## Revisitando o projeto em 2026
 
