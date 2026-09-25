@@ -1,6 +1,7 @@
 package com.bootcamp.bootcampbackend.controllers;
 
 import com.bootcamp.bootcampbackend.entities.Bootcamp;
+import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.services.BootcampService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,23 @@ public class BootcampController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBootcamp(@PathVariable Long id) {
         bootcampService.deleteBootcamp(id);
+    }
+
+    @GetMapping("/{id}/students")
+    public List<Student> getEnrolledStudents(@PathVariable Long id) {
+        return bootcampService.getEnrolledStudents(id);
+    }
+
+    @PostMapping("/{id}/students/{studentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void enrollStudent(@PathVariable Long id, @PathVariable Long studentId) {
+        bootcampService.enrollStudent(id, studentId);
+    }
+
+    @DeleteMapping("/{id}/students/{studentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unenrollStudent(@PathVariable Long id, @PathVariable Long studentId) {
+        bootcampService.unenrollStudent(id, studentId);
     }
 
 }
