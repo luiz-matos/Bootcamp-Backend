@@ -6,7 +6,6 @@ import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.services.StudentService;
 import jakarta.validation.Valid;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("students")
 public class StudentController {
 
-    @Autowired
-    private StudentService studentService;
+    private final StudentService studentService;
+
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     @GetMapping
     public List<Student> getStudentList() {
