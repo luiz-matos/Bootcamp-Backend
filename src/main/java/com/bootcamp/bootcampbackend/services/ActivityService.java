@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityService {
+
     private final ActivityRepository activityRepository;
     private final StudentRepository studentRepository;
     private final BootcampService bootcampService;
@@ -29,42 +30,42 @@ public class ActivityService {
         this.responseMapper = responseMapper;
     }
 
-    public List<ActivityResponse> getActivityList(Long bootcampId) {
-        bootcampService.findBootcamp(bootcampId);
+    public List<ActivityResponse> findAll(Long bootcampId) {
+        bootcampService.getEntity(bootcampId);
         return activityRepository.findByBootcampId(bootcampId).stream()
                 .map(responseMapper::toResponse)
                 .toList();
     }
 
-    public ActivityResponse getActivity(Long bootcampId, Long id) {
-        return responseMapper.toResponse(findActivity(bootcampId, id));
+    public ActivityResponse findById(Long bootcampId, Long id) {
+        return responseMapper.toResponse(getEntity(bootcampId, id));
     }
 
-    private Activity findActivity(Long bootcampId, Long id) {
-        return activityRepository
-                .findByIdAndBootcampId(id, bootcampId)
-                .orElseThrow(
-                        () -> new NotFoundException("Atividade " + id + " não encontrada no bootcamp " + bootcampId));
-    }
-
-    public ActivityResponse addActivity(Long bootcampId, ActivityRequest request) {
+    public ActivityResponse create(Long bootcampId, ActivityRequest request) {
         Activity activity = new Activity();
         request.applyTo(activity);
-        activity.setBootcamp(bootcampService.findBootcamp(bootcampId));
+        activity.setBootcamp(bootcampService.getEntity(bootcampId));
         return responseMapper.toResponse(activityRepository.save(activity));
     }
 
-    public ActivityResponse updateActivity(Long bootcampId, Long id, ActivityRequest request) {
-        Activity activity = findActivity(bootcampId, id);
+    public ActivityResponse update(Long bootcampId, Long id, ActivityRequest request) {
+        Activity activity = getEntity(bootcampId, id);
         request.applyTo(activity);
         return responseMapper.toResponse(activityRepository.save(activity));
     }
 
-    public void deleteActivity(Long bootcampId, Long id) {
-        Activity activity = findActivity(bootcampId, id);
+    public void delete(Long bootcampId, Long id) {
+        Activity activity = getEntity(bootcampId, id);
         if (studentRepository.existsByCompletedActivitiesId(id)) {
             throw new ConflictException("A atividade " + id + " já foi concluída por alunos e não pode ser excluída");
         }
         activityRepository.delete(activity);
+    }
+
+    private Activity getEntity(Long bootcampId, Long id) {
+        return activityRepository
+                .findByIdAndBootcampId(id, bootcampId)
+                .orElseThrow(
+                        () -> new NotFoundException("Atividade " + id + " não encontrada no bootcamp " + bootcampId));
     }
 }

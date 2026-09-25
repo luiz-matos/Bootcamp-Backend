@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 
-class EnrollmentTest extends ApiTest {
+class EnrollmentControllerTest extends ApiTest {
 
     @Test
     void enrolledStudentsAreListed() throws Exception {

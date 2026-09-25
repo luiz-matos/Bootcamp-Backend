@@ -1,7 +1,5 @@
 package com.bootcamp.bootcampbackend.controllers;
 
-import com.bootcamp.bootcampbackend.dtos.ActivityResponse;
-import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
 import com.bootcamp.bootcampbackend.dtos.StudentRequest;
 import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.services.StudentService;
@@ -29,45 +27,29 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<StudentResponse> getStudentList() {
-        return studentService.getStudentList();
+    public List<StudentResponse> list() {
+        return studentService.findAll();
     }
 
     @GetMapping("/{id}")
-    public StudentResponse getStudent(@PathVariable Long id) {
-        return studentService.getStudent(id);
+    public StudentResponse get(@PathVariable Long id) {
+        return studentService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public StudentResponse addStudent(@Valid @RequestBody StudentRequest request) {
-        return studentService.addStudent(request);
+    public StudentResponse create(@Valid @RequestBody StudentRequest request) {
+        return studentService.create(request);
     }
 
     @PutMapping("/{id}")
-    public StudentResponse updateStudent(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
-        return studentService.updateStudent(id, request);
+    public StudentResponse update(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
+        return studentService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteStudent(@PathVariable Long id) {
-        studentService.deleteStudent(id);
-    }
-
-    @GetMapping("/{id}/completed-activities")
-    public List<ActivityResponse> getCompletedActivities(@PathVariable Long id) {
-        return studentService.getCompletedActivities(id);
-    }
-
-    @GetMapping("/{id}/completed-bootcamps")
-    public List<BootcampResponse> getCompletedBootcamps(@PathVariable Long id) {
-        return studentService.getCompletedBootcamps(id);
-    }
-
-    @PostMapping("/{id}/completed-activities/{activityId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void completeActivity(@PathVariable Long id, @PathVariable Long activityId) {
-        studentService.completeActivity(id, activityId);
+    public void delete(@PathVariable Long id) {
+        studentService.delete(id);
     }
 }

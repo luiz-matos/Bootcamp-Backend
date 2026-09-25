@@ -2,7 +2,6 @@ package com.bootcamp.bootcampbackend.controllers;
 
 import com.bootcamp.bootcampbackend.dtos.BootcampRequest;
 import com.bootcamp.bootcampbackend.dtos.BootcampResponse;
-import com.bootcamp.bootcampbackend.dtos.StudentResponse;
 import com.bootcamp.bootcampbackend.services.BootcampService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,46 +27,29 @@ public class BootcampController {
     }
 
     @GetMapping
-    public List<BootcampResponse> getBootcampList() {
-        return bootcampService.getBootcampList();
+    public List<BootcampResponse> list() {
+        return bootcampService.findAll();
     }
 
     @GetMapping("/{id}")
-    public BootcampResponse getBootcamp(@PathVariable Long id) {
-        return bootcampService.getBootcamp(id);
+    public BootcampResponse get(@PathVariable Long id) {
+        return bootcampService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BootcampResponse addBootcamp(@Valid @RequestBody BootcampRequest request) {
-        return bootcampService.addBootcamp(request);
+    public BootcampResponse create(@Valid @RequestBody BootcampRequest request) {
+        return bootcampService.create(request);
     }
 
     @PutMapping("/{id}")
-    public BootcampResponse updateBootcamp(@PathVariable Long id, @Valid @RequestBody BootcampRequest request) {
-        return bootcampService.updateBootcamp(id, request);
+    public BootcampResponse update(@PathVariable Long id, @Valid @RequestBody BootcampRequest request) {
+        return bootcampService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBootcamp(@PathVariable Long id) {
-        bootcampService.deleteBootcamp(id);
-    }
-
-    @GetMapping("/{id}/students")
-    public List<StudentResponse> getEnrolledStudents(@PathVariable Long id) {
-        return bootcampService.getEnrolledStudents(id);
-    }
-
-    @PostMapping("/{id}/students/{studentId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void enrollStudent(@PathVariable Long id, @PathVariable Long studentId) {
-        bootcampService.enrollStudent(id, studentId);
-    }
-
-    @DeleteMapping("/{id}/students/{studentId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unenrollStudent(@PathVariable Long id, @PathVariable Long studentId) {
-        bootcampService.unenrollStudent(id, studentId);
+    public void delete(@PathVariable Long id) {
+        bootcampService.delete(id);
     }
 }

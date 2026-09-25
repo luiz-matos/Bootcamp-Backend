@@ -27,30 +27,30 @@ public class ActivityController {
     }
 
     @GetMapping
-    public List<ActivityResponse> getActivityList(@PathVariable Long bootcampId) {
-        return activityService.getActivityList(bootcampId);
+    public List<ActivityResponse> list(@PathVariable Long bootcampId) {
+        return activityService.findAll(bootcampId);
     }
 
     @GetMapping("/{id}")
-    public ActivityResponse getActivity(@PathVariable Long bootcampId, @PathVariable Long id) {
-        return activityService.getActivity(bootcampId, id);
+    public ActivityResponse get(@PathVariable Long bootcampId, @PathVariable Long id) {
+        return activityService.findById(bootcampId, id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ActivityResponse addActivity(@PathVariable Long bootcampId, @Valid @RequestBody ActivityRequest request) {
-        return activityService.addActivity(bootcampId, request);
+    public ActivityResponse create(@PathVariable Long bootcampId, @Valid @RequestBody ActivityRequest request) {
+        return activityService.create(bootcampId, request);
     }
 
     @PutMapping("/{id}")
-    public ActivityResponse updateActivity(
+    public ActivityResponse update(
             @PathVariable Long bootcampId, @PathVariable Long id, @Valid @RequestBody ActivityRequest request) {
-        return activityService.updateActivity(bootcampId, id, request);
+        return activityService.update(bootcampId, id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteActivity(@PathVariable Long bootcampId, @PathVariable Long id) {
-        activityService.deleteActivity(bootcampId, id);
+    public void delete(@PathVariable Long bootcampId, @PathVariable Long id) {
+        activityService.delete(bootcampId, id);
     }
 }
