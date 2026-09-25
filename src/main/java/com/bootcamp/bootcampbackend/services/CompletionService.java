@@ -27,12 +27,14 @@ public class CompletionService {
         this.responseMapper = responseMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<ActivityResponse> findCompletedActivities(Long studentId) {
         return studentService.getEntity(studentId).getCompletedActivities().stream()
                 .map(responseMapper::toResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<BootcampResponse> findCompletedBootcamps(Long studentId) {
         return studentService.getEntity(studentId).getCompletedBootcamps().stream()
                 .map(responseMapper::toResponse)

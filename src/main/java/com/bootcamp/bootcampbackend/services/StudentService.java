@@ -26,12 +26,14 @@ public class StudentService {
         this.responseMapper = responseMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<StudentResponse> findAll() {
         return studentRepository.findAll().stream()
                 .map(responseMapper::toResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public StudentResponse findById(Long id) {
         return responseMapper.toResponse(getEntity(id));
     }
@@ -48,6 +50,7 @@ public class StudentService {
         return responseMapper.toResponse(studentRepository.save(student));
     }
 
+    @Transactional
     public StudentResponse update(Long id, StudentRequest request) {
         Student student = getEntity(id);
         request.applyTo(student);
