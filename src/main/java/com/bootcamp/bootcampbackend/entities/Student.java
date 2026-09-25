@@ -14,7 +14,9 @@ import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Student {
@@ -32,9 +34,16 @@ public class Student {
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "activity_id"))
     private List<Activity> completedActivities = new ArrayList<>();
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "student_completed_bootcamp",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "bootcamp_id"))
+    private Set<Bootcamp> completedBootcamps = new HashSet<>();
 
     public double getXp() {
-        return completedActivities.stream().mapToDouble(Activity::xpCalculate).sum();
+        return completedActivities.stream().mapToDouble(Activity::xpCalculate).sum()
+                + completedBootcamps.stream().mapToDouble(Bootcamp::xpCalculate).sum();
     }
 
     public Long getId() {
@@ -59,5 +68,13 @@ public class Student {
 
     public void setCompletedActivities(List<Activity> completedActivities) {
         this.completedActivities = completedActivities;
+    }
+
+    public Set<Bootcamp> getCompletedBootcamps() {
+        return completedBootcamps;
+    }
+
+    public void setCompletedBootcamps(Set<Bootcamp> completedBootcamps) {
+        this.completedBootcamps = completedBootcamps;
     }
 }

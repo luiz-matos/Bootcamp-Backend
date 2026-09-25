@@ -58,6 +58,10 @@ public class StudentService {
         return getStudent(id).getCompletedActivities();
     }
 
+    public List<Bootcamp> getCompletedBootcamps(Long id) {
+        return List.copyOf(getStudent(id).getCompletedBootcamps());
+    }
+
     @Transactional
     public void completeActivity(Long id, Long activityId) {
         Student student = getStudent(id);
@@ -71,6 +75,11 @@ public class StudentService {
             throw new ConflictException("O aluno " + id + " já concluiu a atividade " + activityId);
         }
         student.getCompletedActivities().add(activity);
+
+        Bootcamp bootcamp = activity.getBootcamp();
+        if (student.getCompletedActivities().containsAll(bootcamp.getActivities())) {
+            student.getCompletedBootcamps().add(bootcamp);
+        }
     }
 
 }

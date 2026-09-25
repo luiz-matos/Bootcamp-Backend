@@ -56,6 +56,8 @@ class ExperienceTest {
 
     @Test
     void xpIsTheSumOfTheCompletedActivities() throws Exception {
+        postActivity(java, "Mentoria de testes");
+
         complete(ana, spring).andExpect(status().isNoContent());
         complete(ana, jpa).andExpect(status().isNoContent());
 
@@ -82,6 +84,64 @@ class ExperienceTest {
 
         mockMvc.perform(get("/students/{id}", idOf(response)))
                 .andExpect(jsonPath("$.xp").value(0.0));
+    }
+
+    @Test
+    void bootcampShowsItsXp() throws Exception {
+        mockMvc.perform(get("/bootcamps/{id}", java))
+                .andExpect(jsonPath("$.xp").value(600.0));
+    }
+
+    @Test
+    void finishingAllActivitiesAddsTheBootcampXp() throws Exception {
+        complete(ana, spring);
+
+        mockMvc.perform(get("/students/{id}", ana))
+                .andExpect(jsonPath("$.xp").value(35.0));
+        mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
+                .andExpect(jsonPath("$.length()").value(0));
+
+        complete(ana, jpa);
+
+        mockMvc.perform(get("/students/{id}", ana))
+                .andExpect(jsonPath("$.xp").value(670.0));
+        mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Java"));
+    }
+
+    @Test
+    void bootcampXpStaysWhenANewActivityIsAdded() throws Exception {
+        complete(ana, spring);
+        complete(ana, jpa);
+
+        long testes = postActivity(java, "Mentoria de testes");
+
+        mockMvc.perform(get("/students/{id}", ana))
+                .andExpect(jsonPath("$.xp").value(670.0));
+
+        complete(ana, testes);
+
+        mockMvc.perform(get("/students/{id}", ana))
+                .andExpect(jsonPath("$.xp").value(705.0));
+        mockMvc.perform(get("/students/{id}/completed-bootcamps", ana))
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void bootcampXpFollowsTheCreditHours() throws Exception {
+        long python = idOf(mockMvc.perform(post("/bootcamps").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"name": "Python", "creditHours": 10, "startDate": "2024-01-08", "endDate": "2024-03-01"}
+                        """))
+                .andReturn().getResponse().getContentAsString());
+        long django = postActivity(python, "Mentoria de Django");
+        mockMvc.perform(post("/bootcamps/{id}/students/{studentId}", python, ana));
+
+        complete(ana, django);
+
+        mockMvc.perform(get("/students/{id}", ana))
+                .andExpect(jsonPath("$.xp").value(185.0));
     }
 
     @Test

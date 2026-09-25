@@ -1,6 +1,7 @@
 package com.bootcamp.bootcampbackend.controllers;
 
 import com.bootcamp.bootcampbackend.entities.Activity;
+import com.bootcamp.bootcampbackend.entities.Bootcamp;
 import com.bootcamp.bootcampbackend.entities.Student;
 import com.bootcamp.bootcampbackend.services.StudentService;
 import jakarta.validation.Valid;
@@ -55,6 +56,11 @@ public class StudentController {
     @GetMapping("/{id}/completed-activities")
     public List<Activity> getCompletedActivities(@PathVariable Long id) {
         return studentService.getCompletedActivities(id);
+    }
+
+    @GetMapping("/{id}/completed-bootcamps")
+    public List<Bootcamp> getCompletedBootcamps(@PathVariable Long id) {
+        return studentService.getCompletedBootcamps(id);
     }
 
     @PostMapping("/{id}/completed-activities/{activityId}")

@@ -44,7 +44,7 @@ class DatabaseSchemaTest {
                 "select table_name from information_schema.tables where table_schema = 'public' order by table_name",
                 String.class);
 
-        assertEquals(List.of("activity", "bootcamp", "bootcamp_student", "student", "student_completed_activity"), tables);
+        assertEquals(List.of("activity", "bootcamp", "bootcamp_student", "student", "student_completed_activity", "student_completed_bootcamp"), tables);
         assertEquals(List.of("bootcamp_id", "student_id"), columns("bootcamp_student"));
         assertEquals(List.of("id", "name"), columns("student"));
         assertEquals(List.of("bootcamp_id", "date_of_mentoring", "description", "id", "title"), columns("activity"));

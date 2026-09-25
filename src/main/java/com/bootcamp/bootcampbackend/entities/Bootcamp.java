@@ -23,6 +23,8 @@ import java.util.List;
 @Entity
 public class Bootcamp {
 
+    private static final double DEFAULT_XP = 15d;
+
     @Id
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,11 @@ public class Bootcamp {
     @JsonIgnore
     @OneToMany(mappedBy = "bootcamp")
     private List<Activity> activities;
+
+    @JsonProperty("xp")
+    public double xpCalculate() {
+        return DEFAULT_XP * creditHours;
+    }
 
     @JsonIgnore
     @AssertTrue(message = "A data de término não pode ser anterior à de início")
