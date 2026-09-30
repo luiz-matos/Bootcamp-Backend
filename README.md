@@ -1,10 +1,27 @@
-# Bootcamp
+# 🎓 Bootcamp
 
-API REST em Java 21 e Spring Boot 4 para gerenciar bootcamps, matricular alunos, cadastrar as atividades de cada bootcamp e dar XP ao aluno por atividade concluída e por bootcamp finalizado.
+<div align="center">
+  <img src="https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk" alt="Java 21">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen?style=for-the-badge&logo=springboot" alt="Spring Boot 4.1.1">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16">
+  <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger OpenAPI">
+</div>
+
+<br>
+
+> 🎯 **API REST em Java 21 e Spring Boot 4 para gerenciar bootcamps**, matricular alunos, cadastrar as atividades de cada bootcamp e dar XP ao aluno por atividade concluída e por bootcamp finalizado.
 
 Fiz a primeira versão em 2024, com o cadastro de bootcamps e o modelo do banco. Em 2026 voltei ao projeto para corrigir bugs, atualizar o Spring Boot e completar o que faltava: alunos, matrícula, atividades e XP.
 
-## Como rodar
+## 📋 Índice
+
+- [🚀 Como rodar](#-como-rodar)
+- [📚 Endpoints](#-endpoints)
+- [📏 Regras](#-regras)
+- [🧩 Como o código funciona](#-como-o-código-funciona)
+- [🔄 Revisitando o projeto em 2026](#-revisitando-o-projeto-em-2026)
+
+## 🚀 Como rodar
 
 Precisa do JDK 21 e de um PostgreSQL com um banco chamado `bootcamp`. As tabelas são criadas pelo Hibernate na primeira execução.
 
@@ -34,7 +51,7 @@ A documentação fica no Swagger, em `http://localhost:8080/swagger-ui.html`, e 
 
 Os testes rodam com `./mvnw test` e não precisam do PostgreSQL: usam um H2 em memória. O `./mvnw verify` também confere a formatação do código, e o `./mvnw spotless:apply` corrige.
 
-## Endpoints
+## 📚 Endpoints
 
 | Método | Rota | O que faz |
 |---|---|---|
@@ -60,7 +77,7 @@ Os testes rodam com `./mvnw test` e não precisam do PostgreSQL: usam um H2 em m
 | `POST` | `/students/{id}/completed-activities/{activityId}` | Marca a atividade como concluída |
 | `GET` | `/students/{id}/completed-bootcamps` | Lista os bootcamps que o aluno finalizou |
 
-## Regras
+## 📏 Regras
 
 - O nome do bootcamp é único. Nome, carga horária maior que zero, data de início e data de término são obrigatórios, e o término não pode ser anterior ao início.
 - Aluno precisa de nome. Atividade precisa de título e data da mentoria.
@@ -97,7 +114,7 @@ Cadastro com dados inválidos:
 }
 ```
 
-## Como o código funciona
+## 🧩 Como o código funciona
 
 ```
 src/main/java/com/bootcamp/bootcampbackend/
@@ -123,11 +140,11 @@ src/test/java/com/bootcamp/bootcampbackend/
   <img alt="Diagrama do banco: bootcamp, student e activity, com as tabelas de matrícula e de conclusão" src="docs/banco-de-dados.png" width="1120" />
 </p>
 
-## Revisitando o projeto em 2026
+## 🔄 Revisitando o projeto em 2026
 
 Uma análise nova mostrou que a versão de 2024 não conseguia gravar nenhum bootcamp: as entidades eram `record`, que o JPA não aceita. Por trás desse erro havia outros, que só apareceram depois dele corrigido.
 
-### Bugs corrigidos
+### 🐛 Bugs corrigidos
 
 | Bug | Causa | Correção |
 |---|---|---|
@@ -137,7 +154,7 @@ Uma análise nova mostrou que a versão de 2024 não conseguia gravar nenhum boo
 | O segundo bootcamp cadastrado dava erro de chave duplicada | Id sem `@GeneratedValue`: todo registro sem id era gravado com id 0 | Ids gerados pelo banco |
 | O aluno não conseguia entrar em um segundo bootcamp, e as relações eram gravadas duas vezes | `@OneToMany` sem `mappedBy` criava tabelas de junção com restrição única, além da coluna do `@ManyToOne` | Aluno x bootcamp em N:N pela `bootcamp_student`; atividade x bootcamp em 1:N pela coluna `bootcamp_id` |
 
-### Decisões técnicas
+### 🧠 Decisões técnicas
 
 **Aluno em vários bootcamps, atividade em um só**
 
@@ -185,3 +202,13 @@ Depois dos recursos, reorganizei o código sem mudar o que a API faz:
 - **Descrição do bootcamp como `text`.** O `@Lob` vira uma coluna `oid` no PostgreSQL, que só pode ser lida dentro de transação.
 - **Formatação automática.** Spotless com palantir-java-format, verificado no `mvn verify`.
 - **Mesmo resultado.** Gravei as respostas de 71 chamadas, cobrindo todas as rotas e os casos de erro, antes da primeira mudança, e comparei depois de cada commit. O conteúdo ficou idêntico. A única diferença é a ordem dos campos no JSON, que agora segue a declaração do record, com o `id` primeiro.
+
+---
+
+<div align="center">
+  <p>Desenvolvido por <strong>Luiz Matos</strong></p>
+  <p>
+    <a href="https://github.com/luiz-matos">GitHub</a> •
+    <a href="https://www.linkedin.com/in/luizeduardomatos/">LinkedIn</a>
+  </p>
+</div>
