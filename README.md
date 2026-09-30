@@ -5,6 +5,7 @@
   <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen?style=for-the-badge&logo=springboot" alt="Spring Boot 4.1.1">
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16">
   <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger OpenAPI">
+  <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow?style=for-the-badge" alt="Licença MIT">
 </div>
 
 <br>
@@ -20,6 +21,7 @@ Fiz a primeira versão em 2024, com o cadastro de bootcamps e o modelo do banco.
 - [📏 Regras](#-regras)
 - [🧩 Como o código funciona](#-como-o-código-funciona)
 - [🔄 Revisitando o projeto em 2026](#-revisitando-o-projeto-em-2026)
+- [📄 Licença](#-licença)
 
 ## 🚀 Como rodar
 
@@ -202,6 +204,10 @@ Depois dos recursos, reorganizei o código sem mudar o que a API faz:
 - **Descrição do bootcamp como `text`.** O `@Lob` vira uma coluna `oid` no PostgreSQL, que só pode ser lida dentro de transação.
 - **Formatação automática.** Spotless com palantir-java-format, verificado no `mvn verify`.
 - **Mesmo resultado.** Gravei as respostas de 71 chamadas, cobrindo todas as rotas e os casos de erro, antes da primeira mudança, e comparei depois de cada commit. O conteúdo ficou idêntico. A única diferença é a ordem dos campos no JSON, que agora segue a declaração do record, com o `id` primeiro.
+
+## 📄 Licença
+
+[MIT](LICENSE)
 
 ---
 
